@@ -68,6 +68,11 @@ class JiraClient
     protected $jsonOptions;
 
     /**
+     * @var string[]
+     */
+    protected $additionalHeaders = [];
+
+    /**
      * Constructor.
      *
      * @param ConfigurationInterface $configuration
@@ -263,7 +268,11 @@ class JiraClient
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            ['Accept: */*', 'Content-Type: application/json', 'X-Atlassian-Token: no-check']
+            array_merge([
+                'Accept: */*',
+                'Content-Type: application/json',
+                'X-Atlassian-Token: no-check'
+            ], $this->additionalHeaders)
         );
 
         curl_setopt($ch, CURLOPT_VERBOSE, $this->getConfiguration()->isCurlOptVerbose());
@@ -455,6 +464,14 @@ class JiraClient
         if ($result_code != 200) {
             // @TODO $body might have not been defined
             throw new JiraException('CURL Error: = '.$body, $result_code);
+        }
+    }
+
+    protected function addHeader(string $key, string $value)
+    {
+        $line = "$key: $value";
+        if (!in_array($line, $this->additionalHeaders, true)) {
+            $this->additionalHeaders[] = $line;
         }
     }
 
