@@ -1,12 +1,15 @@
 <?php
 
-use JiraRestApi\Pagination\PaginatedQuery;
+namespace JiraRestApi\Test\Pagination;
 
-class PaginationTest extends PHPUnit_Framework_TestCase
+use JiraRestApi\Pagination\PaginatedQuery;
+use PHPUnit\Framework\TestCase;
+
+class PaginationTest extends TestCase
 {
     private $data = [];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

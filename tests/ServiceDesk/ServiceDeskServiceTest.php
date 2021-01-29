@@ -1,5 +1,7 @@
 <?php
 
+namespace JiraRestApi\Test\ServiceDesk;
+
 use JiraRestApi\ServiceDesk\ServiceDeskService;
 use JiraRestApi\ServiceDesk\ServiceDeskServiceInterface;
 use JiraRestApi\ServiceDesk\User\User;
