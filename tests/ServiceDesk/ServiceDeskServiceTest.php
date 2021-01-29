@@ -14,7 +14,7 @@ class ServiceDeskServiceTest extends TestCase
      */
     protected $sut;
 
-    protected $serviceDeskId = 3;
+    protected $serviceDeskId = 'TSD';
 
     protected function setUp(): void
     {

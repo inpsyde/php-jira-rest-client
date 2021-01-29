@@ -13,11 +13,12 @@ interface ServiceDeskServiceInterface
 {
     /**
      * Returns a paginated query object allowing to retrieve the customers with the specified query.
-     * @param int $serviceDeskId
+     * @param string $serviceDeskId The ID of the service desk the customer list should be returned from.
+     * This can alternatively be a project identifier. https://developer.atlassian.com/cloud/jira/service-desk/rest/intro/#request-language
      * @param string|null $query The string used to filter the customer list.
      * The parameter is matched against customers' displayName, name, or email.
      * For example, searching for "John", "Jo", or "Smith" will match a user with display name "John Smith".
      * @return PaginatedQueryInterface<User>
      */
-    public function getCustomers(int $serviceDeskId, string $query = null): PaginatedQueryInterface;
+    public function getCustomers(string $serviceDeskId, string $query = null): PaginatedQueryInterface;
 }

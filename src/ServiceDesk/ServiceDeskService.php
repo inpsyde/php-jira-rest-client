@@ -32,7 +32,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
     /**
      * @inheritDoc
      */
-    public function getCustomers(int $serviceDeskId, string $query = null): PaginatedQueryInterface
+    public function getCustomers(string $serviceDeskId, string $query = null): PaginatedQueryInterface
     {
         $this->allowExperimentalApi();
 
@@ -49,7 +49,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         });
     }
 
-    protected function serviceDeskUri(int $serviceDeskId): string {
+    protected function serviceDeskUri(string $serviceDeskId): string {
         return $this->uri . "/$serviceDeskId";
     }
 }
