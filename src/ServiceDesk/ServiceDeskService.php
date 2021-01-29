@@ -6,7 +6,12 @@ use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
+use JiraRestApi\ServiceDesk\Link\SelfLink;
+use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
+use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDesk;
+use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\User\User;
+use JiraRestApi\ServiceDesk\User\UserInterface;
 use JiraRestApi\ServiceDesk\User\UserLink;
 use JiraRestApi\ServiceDesk\User\UserLinkInterface;
 use JiraRestApi\ServiceDeskTrait;
@@ -32,6 +37,21 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
     /**
      * @inheritDoc
      */
+    public function getServiceDesks(): PaginatedQueryInterface
+    {
+        return new PaginatedQuery(function (array $paginationQuery) {
+            $response = $this->exec($this->uri . '?' . http_build_query($paginationQuery));
+            return json_decode($response, false);
+        }, function ($itemData): ServiceDeskInterface {
+            $this->json_mapper->classMap[SelfLinkInterface::class] = SelfLink::class;
+
+            return $this->json_mapper->map($itemData, new ServiceDesk());
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getCustomers(string $serviceDeskId, string $query = null): PaginatedQueryInterface
     {
         $this->allowExperimentalApi();
@@ -42,7 +62,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         return new PaginatedQuery(function (array $paginationQuery) use ($url, $params) {
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
             return json_decode($response, false);
-        }, function ($itemData): User {
+        }, function ($itemData): UserInterface {
             $this->json_mapper->classMap[UserLinkInterface::class] = UserLink::class;
 
             return $this->json_mapper->map($itemData, new User());

@@ -2,6 +2,9 @@
 
 namespace JiraRestApi\ServiceDesk\User;
 
+/**
+ * User/customer info. UserDTO from the JIRA Service Desk API.
+ */
 class User implements UserInterface
 {
     /**
