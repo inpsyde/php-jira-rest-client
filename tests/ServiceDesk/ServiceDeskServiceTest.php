@@ -2,6 +2,10 @@
 
 namespace JiraRestApi\Test\ServiceDesk;
 
+use JiraRestApi\Dumper;
+use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestCreationMetaInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestTypeInterface;
 use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\ServiceDeskService;
 use JiraRestApi\ServiceDesk\ServiceDeskServiceInterface;
@@ -72,5 +76,29 @@ class ServiceDeskServiceTest extends TestCase
         assert($user instanceof UserInterface);
         self::assertEquals($userToFind->getAccountId(), $user->getAccountId());
         self::assertEquals($userToFind->getEmailAddress(), $user->getEmailAddress());
+    }
+
+    public function testGetRequestTypes()
+    {
+        $query = $this->sut->getRequestTypes($this->serviceDeskId, null, null, ['field']);
+        $result = $query->withLimit(2)->execute();
+
+        self::assertNotEmpty($result->getItems());
+
+        $rt = $result->getItems()[0];
+        assert($rt instanceof RequestTypeInterface);
+        self::assertNotEmpty($rt->getId());
+        self::assertNotEmpty($rt->getDescription());
+        self::assertNotEmpty($rt->getServiceDeskId());
+        self::assertNotEmpty($rt->getIssueTypeId());
+        self::assertNotEmpty($rt->getGroupIds());
+
+        $meta = $rt->getFields();
+        assert($meta instanceof RequestCreationMetaInterface);
+
+        $field = $meta->getRequestTypeFields()[0];
+        assert($field instanceof FieldInterface);
+        self::assertNotEmpty($field->getFieldId());
+        self::assertNotEmpty($field->getName());
     }
 }

@@ -8,6 +8,14 @@ use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
 use JiraRestApi\ServiceDesk\Link\SelfLink;
 use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
+use JiraRestApi\ServiceDesk\RequestType\Field;
+use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
+use JiraRestApi\ServiceDesk\RequestType\FieldValue;
+use JiraRestApi\ServiceDesk\RequestType\FieldValueInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestCreationMeta;
+use JiraRestApi\ServiceDesk\RequestType\RequestCreationMetaInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestType;
+use JiraRestApi\ServiceDesk\RequestType\RequestTypeInterface;
 use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDesk;
 use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\User\User;
@@ -66,6 +74,36 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $this->json_mapper->classMap[UserLinkInterface::class] = UserLink::class;
 
             return $this->json_mapper->map($itemData, new User());
+        });
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRequestTypes(
+        string $serviceDeskId,
+        int $groupId = null,
+        string $searchQuery = null,
+        array $expand = null
+    ): PaginatedQueryInterface
+    {
+        $url = $this->serviceDeskUri($serviceDeskId) . '/requesttype';
+        $params = [
+            'groupId' => $groupId,
+            'searchQuery' => $searchQuery,
+            'expand' => $expand ? implode(',', $expand) : null,
+        ];
+
+        return new PaginatedQuery(function (array $paginationQuery) use ($url, $params) {
+            $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
+            return json_decode($response, false);
+        }, function ($itemData): RequestTypeInterface {
+            $this->json_mapper->classMap[RequestCreationMetaInterface::class] = RequestCreationMeta::class;
+            $this->json_mapper->classMap[FieldInterface::class] = Field::class;
+            $this->json_mapper->classMap[FieldValueInterface::class] = FieldValue::class;
+            $this->json_mapper->classMap[SelfLinkInterface::class] = SelfLink::class;
+
+            return $this->json_mapper->map($itemData, new RequestType());
         });
     }
 
