@@ -14,15 +14,16 @@ class ServiceDeskServiceTest extends TestCase
      */
     protected $sut;
 
-    protected $serviceDeskId = 'TSD';
+    protected $serviceDeskId;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->sut = new ServiceDeskService();
-    }
 
+        $this->serviceDeskId = (string) $_ENV['JIRA_SERVICE_DESK_ID'];
+    }
 
     public function testGetCustomers(): User
     {

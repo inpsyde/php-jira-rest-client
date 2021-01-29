@@ -26,6 +26,7 @@ screen_capture.png
 bug-description.pdf
 
 .env
+.env.phpunit
 
 # Ignore Vagrant Stuff
 .vagrant
