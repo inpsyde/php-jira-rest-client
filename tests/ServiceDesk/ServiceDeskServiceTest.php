@@ -2,7 +2,6 @@
 
 namespace JiraRestApi\Test\ServiceDesk;
 
-use JiraRestApi\Dumper;
 use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
 use JiraRestApi\ServiceDesk\RequestType\RequestCreationMetaInterface;
 use JiraRestApi\ServiceDesk\RequestType\RequestTypeInterface;
@@ -43,7 +42,6 @@ class ServiceDeskServiceTest extends TestCase
         self::assertNotEmpty($sd->getProjectId());
         self::assertNotEmpty($sd->getProjectKey());
         self::assertNotEmpty($sd->getProjectName());
-        self::assertNotEmpty($sd->getLinks()->getSelf());
     }
 
     public function testGetCustomers(): UserInterface

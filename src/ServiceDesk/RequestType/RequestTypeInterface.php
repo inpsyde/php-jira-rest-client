@@ -2,8 +2,6 @@
 
 namespace JiraRestApi\ServiceDesk\RequestType;
 
-use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
-
 /**
  * Request type info. RequestTypeDTO from the JIRA Service Desk API.
  */
@@ -96,14 +94,4 @@ interface RequestTypeInterface
      * @param RequestCreationMeta|null $fields
      */
     public function setFields(?RequestCreationMeta $fields): void;
-
-    /**
-     * @return SelfLinkInterface
-     */
-    public function getLinks(): SelfLinkInterface;
-
-    /**
-     * @param SelfLinkInterface $links
-     */
-    public function setLinks(SelfLinkInterface $links): void;
 }

@@ -6,8 +6,6 @@ use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
-use JiraRestApi\ServiceDesk\Link\SelfLink;
-use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
 use JiraRestApi\ServiceDesk\RequestType\Field;
 use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
 use JiraRestApi\ServiceDesk\RequestType\FieldValue;
@@ -51,7 +49,6 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($this->uri . '?' . http_build_query($paginationQuery));
             return json_decode($response, false);
         }, function ($itemData): ServiceDeskInterface {
-            $this->json_mapper->classMap[SelfLinkInterface::class] = SelfLink::class;
 
             return $this->json_mapper->map($itemData, new ServiceDesk());
         });
@@ -101,7 +98,6 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $this->json_mapper->classMap[RequestCreationMetaInterface::class] = RequestCreationMeta::class;
             $this->json_mapper->classMap[FieldInterface::class] = Field::class;
             $this->json_mapper->classMap[FieldValueInterface::class] = FieldValue::class;
-            $this->json_mapper->classMap[SelfLinkInterface::class] = SelfLink::class;
 
             return $this->json_mapper->map($itemData, new RequestType());
         });

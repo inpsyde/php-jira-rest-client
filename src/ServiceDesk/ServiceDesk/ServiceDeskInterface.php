@@ -2,7 +2,6 @@
 
 namespace JiraRestApi\ServiceDesk\ServiceDesk;
 
-use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
 
 /**
  * Service desk info. ServiceDeskDTO from the JIRA Service Desk API.
@@ -10,9 +9,29 @@ use JiraRestApi\ServiceDesk\Link\SelfLinkInterface;
 interface ServiceDeskInterface
 {
     /**
-     * @return SelfLinkInterface
+     * @return string
      */
-    public function getLinks(): SelfLinkInterface;
+    public function getId(): string;
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void;
+
+    /**
+     * @return string
+     */
+    public function getProjectId(): string;
+
+    /**
+     * @param string $projectId
+     */
+    public function setProjectId(string $projectId): void;
+
+    /**
+     * @return string
+     */
+    public function getProjectName(): string;
 
     /**
      * @param string $projectName
@@ -22,40 +41,10 @@ interface ServiceDeskInterface
     /**
      * @return string
      */
-    public function getProjectId(): string;
+    public function getProjectKey(): string;
 
     /**
      * @param string $projectKey
      */
     public function setProjectKey(string $projectKey): void;
-
-    /**
-     * @return string
-     */
-    public function getProjectKey(): string;
-
-    /**
-     * @return string
-     */
-    public function getId(): string;
-
-    /**
-     * @return string
-     */
-    public function getProjectName(): string;
-
-    /**
-     * @param SelfLinkInterface $links
-     */
-    public function setLinks(SelfLinkInterface $links): void;
-
-    /**
-     * @param string $projectId
-     */
-    public function setProjectId(string $projectId): void;
-
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void;
 }
