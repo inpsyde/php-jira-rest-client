@@ -20,6 +20,16 @@ class ServiceDeskServiceTest extends TestCase
 
     protected $serviceDeskId;
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        if (!array_key_exists('JIRA_SERVICE_DESK_ID', $_ENV)) {
+            echo PHP_EOL . 'Fill the values in .env.phpunit for Service Desk tests' . PHP_EOL;
+            self::markTestSkipped();
+        }
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
