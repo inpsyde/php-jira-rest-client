@@ -65,7 +65,6 @@ class ServiceDeskServiceTest extends TestCase
         assert($user instanceof UserInterface);
         self::assertNotEmpty($user->getAccountId());
         self::assertNotEmpty($user->getEmailAddress());
-        self::assertNotEmpty($user->getLinks()->getJiraRest());
 
         return $user;
     }

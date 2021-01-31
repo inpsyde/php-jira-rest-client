@@ -18,8 +18,6 @@ use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDesk;
 use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\User\User;
 use JiraRestApi\ServiceDesk\User\UserInterface;
-use JiraRestApi\ServiceDesk\User\UserLink;
-use JiraRestApi\ServiceDesk\User\UserLinkInterface;
 use JiraRestApi\ServiceDeskTrait;
 use Psr\Log\LoggerInterface;
 
@@ -68,8 +66,6 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
             return json_decode($response, false);
         }, function ($itemData): UserInterface {
-            $this->json_mapper->classMap[UserLinkInterface::class] = UserLink::class;
-
             return $this->json_mapper->map($itemData, new User());
         });
     }

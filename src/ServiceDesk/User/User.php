@@ -32,11 +32,6 @@ class User implements UserInterface
      */
     protected $timeZone;
 
-    /**
-     * @var UserLinkInterface
-     */
-    protected $links;
-
     public function getAccountId(): string
     {
         return $this->accountId;
@@ -85,15 +80,5 @@ class User implements UserInterface
     public function setTimeZone(?string $timeZone): void
     {
         $this->timeZone = $timeZone;
-    }
-
-    public function getLinks(): UserLinkInterface
-    {
-        return $this->links;
-    }
-
-    public function setLinks(UserLinkInterface $links): void
-    {
-        $this->links = $links;
     }
 }

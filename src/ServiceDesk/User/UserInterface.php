@@ -66,15 +66,4 @@ interface UserInterface
      * @param string|null $timeZone
      */
     public function setTimeZone(?string $timeZone): void;
-
-    /**
-     * Returns URLs for the customer record and related items.
-     * @return UserLinkInterface
-     */
-    public function getLinks(): UserLinkInterface;
-
-    /** Sets URLs for the customer record and related items.
-     * @param UserLinkInterface $links
-     */
-    public function setLinks(UserLinkInterface $links): void;
 }
