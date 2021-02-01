@@ -13,19 +13,9 @@ interface FieldInterface
     public function getFieldId(): string;
 
     /**
-     * @param string $fieldId
-     */
-    public function setFieldId(string $fieldId): void;
-
-    /**
      * @return string
      */
     public function getName(): string;
-
-    /**
-     * @param string $name
-     */
-    public function setName(string $name): void;
 
     /**
      * @return string
@@ -33,19 +23,9 @@ interface FieldInterface
     public function getDescription(): string;
 
     /**
-     * @param string $description
-     */
-    public function setDescription(string $description): void;
-
-    /**
      * @return bool
      */
     public function isRequired(): bool;
-
-    /**
-     * @param bool $required
-     */
-    public function setRequired(bool $required): void;
 
     /**
      * @return bool
@@ -53,27 +33,12 @@ interface FieldInterface
     public function isVisible(): bool;
 
     /**
-     * @param bool $visible
-     */
-    public function setVisible(bool $visible): void;
-
-    /**
      * @return FieldValueInterface[]
      */
     public function getDefaultValues(): array;
 
     /**
-     * @param FieldValueInterface[] $defaultValues
-     */
-    public function setDefaultValues(array $defaultValues): void;
-
-    /**
      * @return FieldValueInterface[]
      */
     public function getValidValues(): array;
-
-    /**
-     * @param FieldValueInterface[] $validValues
-     */
-    public function setValidValues(array $validValues): void;
 }
