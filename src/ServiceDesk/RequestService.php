@@ -8,6 +8,22 @@ use JiraRestApi\ServiceDesk\Comment\Comment;
 use JiraRestApi\ServiceDesk\Comment\CommentInterface;
 use JiraRestApi\ServiceDesk\Date\Date;
 use JiraRestApi\ServiceDesk\Date\DateInterface;
+use JiraRestApi\ServiceDesk\Request\FieldValue;
+use JiraRestApi\ServiceDesk\Request\FieldValueInterface;
+use JiraRestApi\ServiceDesk\Request\Request;
+use JiraRestApi\ServiceDesk\Request\RequestInterface;
+use JiraRestApi\ServiceDesk\Request\Status;
+use JiraRestApi\ServiceDesk\Request\StatusInterface;
+use JiraRestApi\ServiceDesk\RequestType\Field;
+use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
+use JiraRestApi\ServiceDesk\RequestType\FieldValue as RequestTypeFieldValue;
+use JiraRestApi\ServiceDesk\RequestType\FieldValueInterface as RequestTypeFieldValueInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestCreationMeta;
+use JiraRestApi\ServiceDesk\RequestType\RequestCreationMetaInterface;
+use JiraRestApi\ServiceDesk\RequestType\RequestType;
+use JiraRestApi\ServiceDesk\RequestType\RequestTypeInterface;
+use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDesk;
+use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\User\User;
 use JiraRestApi\ServiceDesk\User\UserInterface;
 use JiraRestApi\ServiceDeskTrait;
@@ -28,6 +44,43 @@ class RequestService extends JiraClient implements RequestServiceInterface
         parent::__construct($configuration, $logger, $path);
 
         $this->setupAPIUri();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createRequest(
+        $serviceDeskId,
+        $requestTypeId,
+        array $fieldValues,
+        array $requestParticipants = null,
+        ?string $raiseOnBehalfOf = null
+    ): RequestInterface
+    {
+        $data = json_encode(array_filter([
+            'serviceDeskId' => (string) $serviceDeskId,
+            'requestTypeId' => (string) $requestTypeId,
+            'requestFieldValues' => $fieldValues,
+            'requestParticipants' => $requestParticipants,
+            'raiseOnBehalfOf' => $raiseOnBehalfOf,
+        ], function ($val) { return $val !== null; }));
+
+        $ret = $this->exec($this->uri, $data);
+
+        $this->json_mapper->classMap[FieldValueInterface::class] = FieldValue::class;
+        $this->json_mapper->classMap[StatusInterface::class] = Status::class;
+        $this->json_mapper->classMap[UserInterface::class] = User::class;
+        $this->json_mapper->classMap[DateInterface::class] = Date::class;
+        $this->json_mapper->classMap[ServiceDeskInterface::class] = ServiceDesk::class;
+        $this->json_mapper->classMap[RequestTypeInterface::class] = RequestType::class;
+        $this->json_mapper->classMap[RequestCreationMetaInterface::class] = RequestCreationMeta::class;
+        $this->json_mapper->classMap[FieldInterface::class] = Field::class;
+        $this->json_mapper->classMap[RequestTypeFieldValueInterface::class] = RequestTypeFieldValue::class;
+
+        return $this->json_mapper->map(
+            json_decode($ret),
+            new Request()
+        );
     }
 
     /**
