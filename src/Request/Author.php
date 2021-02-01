@@ -1,7 +1,9 @@
 <?php
 
 namespace JiraRestApi\Request;
-
+/**
+ * @deprecated Use ServiceDesk/User
+ */
 class Author implements \JsonSerializable
 {
     /** @var string */

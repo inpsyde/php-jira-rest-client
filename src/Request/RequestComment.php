@@ -2,6 +2,9 @@
 
 namespace JiraRestApi\Request;
 
+/**
+ * @deprecated Use ServiceDesk\Comment
+ */
 class RequestComment implements \JsonSerializable
 {
     /** @var string */
@@ -13,10 +16,10 @@ class RequestComment implements \JsonSerializable
     /** @var bool */
     public $public;
 
-    /** @var \JiraRestApi\Request\Author */
+    /** @var Author */
     public $author;
 
-    /** @var \DateTimeInterface */
+    /** @var \DateTimeInterface The type is wrong, json mapper will simply create the current date and add some fields to it */
     public $created;
 
     /**
