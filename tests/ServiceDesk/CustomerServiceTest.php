@@ -23,7 +23,7 @@ class CustomerServiceTest extends TestCase
 
     public function testCreateCustomer()
     {
-        $email = 'test' . rand() .'@gmail.com';
+        $email = 'test' . rand() .'@example.com';
 
         $customer = $this->sut->createCustomer($email, 'Test User');
 

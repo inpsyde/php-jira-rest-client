@@ -6,7 +6,6 @@ use JiraRestApi\ServiceDesk\Request\FieldValueInterface;
 use JiraRestApi\ServiceDesk\Request\RequestInterface;
 use JiraRestApi\ServiceDesk\RequestService;
 use JiraRestApi\ServiceDesk\RequestServiceInterface;
-use JiraRestApi\ServiceDesk\ServiceDeskService;
 use PHPUnit\Framework\TestCase;
 
 class RequestServiceTest extends TestCase
@@ -39,12 +38,8 @@ class RequestServiceTest extends TestCase
 
     public function testCreateRequest(): RequestInterface
     {
-        $serviceDeskService = new ServiceDeskService();
-
-        $requestType = $serviceDeskService->getRequestTypes($this->serviceDeskId)->withLimit(1)->execute()->getItems()[0];
-        $customer = $serviceDeskService->getCustomers($this->serviceDeskId)->withStart(1)->withLimit(1)->execute()->getItems()[0];
-        $requestTypeId = $requestType->getId();
-        $accountId = $customer->getAccountId();
+        $requestTypeId = (string) $_ENV['JIRA_SERVICE_DESK_REQUEST_TYPE_ID'];
+        $accountId = $_ENV['JIRA_SERVICE_DESK_CUSTOMER_ID'];
 
         $request = $this->sut->createRequest(
             $this->serviceDeskId,
