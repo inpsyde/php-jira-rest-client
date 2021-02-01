@@ -55,7 +55,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
     /**
      * @inheritDoc
      */
-    public function getCustomers(string $serviceDeskId, string $query = null): PaginatedQueryInterface
+    public function getCustomers($serviceDeskId, string $query = null): PaginatedQueryInterface
     {
         $this->allowExperimentalApi();
 
@@ -73,8 +73,18 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
     /**
      * @inheritDoc
      */
+    public function addCustomers($serviceDeskId, array $accountIds): void
+    {
+        $data = json_encode(['accountIds' => $accountIds]);
+
+        $this->exec($this->serviceDeskUri($serviceDeskId) . '/customer', $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getRequestTypes(
-        string $serviceDeskId,
+        $serviceDeskId,
         int $groupId = null,
         string $searchQuery = null,
         array $expand = null
@@ -99,7 +109,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         });
     }
 
-    protected function serviceDeskUri(string $serviceDeskId): string {
+    protected function serviceDeskUri($serviceDeskId): string {
         return $this->uri . "/$serviceDeskId";
     }
 }

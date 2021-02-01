@@ -22,7 +22,7 @@ interface ServiceDeskServiceInterface
 
     /**
      * Returns a paginated query object allowing to retrieve the customers with the specified query.
-     * @param string $serviceDeskId The ID of the service desk the customer list are to be returned from.
+     * @param string|int $serviceDeskId The ID of the service desk the customer list are to be returned from.
      * This can alternatively be a project identifier. https://developer.atlassian.com/cloud/jira/service-desk/rest/intro/#request-language
      * @param string|null $query The string used to filter the customer list.
      * The parameter is matched against customers' displayName, name, or email.
@@ -30,11 +30,21 @@ interface ServiceDeskServiceInterface
      * @return PaginatedQueryInterface<UserInterface>
      * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk/#api-rest-servicedeskapi-servicedesk-servicedeskid-customer-get
      */
-    public function getCustomers(string $serviceDeskId, string $query = null): PaginatedQueryInterface;
+    public function getCustomers($serviceDeskId, string $query = null): PaginatedQueryInterface;
+
+    /**
+     * Adds one or more customers to a service desk.
+     * If any of the passed customers are associated with the service desk, no changes will be made for those customers.
+     * @param string|int $serviceDeskId The ID of the service desk.
+     * This can alternatively be a project identifier. https://developer.atlassian.com/cloud/jira/service-desk/rest/intro/#request-language
+     * @param string[] $accountIds List of user account IDs, to add to the service desk.
+     * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk/#api-rest-servicedeskapi-servicedesk-servicedeskid-customer-post
+     */
+    public function addCustomers($serviceDeskId, array $accountIds): void;
 
     /**
      * Returns a paginated query object allowing to retrieve all customer request types from a service desk.
-     * @param string $serviceDeskId The ID of the service desk the request types are to be returned from.
+     * @param string|int $serviceDeskId The ID of the service desk the request types are to be returned from.
      * This can alternatively be a project identifier. https://developer.atlassian.com/cloud/jira/service-desk/rest/intro/#request-language
      * @param int|null $groupId Filters results to those in a customer request type group.
      * @param string|null $searchQuery The string used to filter the request types.
@@ -45,7 +55,7 @@ interface ServiceDeskServiceInterface
      * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk/#api-rest-servicedeskapi-servicedesk-servicedeskid-requesttype-get
      */
     public function getRequestTypes(
-        string $serviceDeskId,
+        $serviceDeskId,
         int $groupId = null,
         string $searchQuery = null,
         array $expand = null

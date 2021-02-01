@@ -85,6 +85,15 @@ class ServiceDeskServiceTest extends TestCase
         self::assertEquals($userToFind->getEmailAddress(), $user->getEmailAddress());
     }
 
+    /**
+     * @depends testGetCustomers
+     * @doesNotPerformAssertions
+     */
+    public function testAddCustomers(UserInterface $user)
+    {
+        $this->sut->addCustomers($this->serviceDeskId, [$user->getAccountId()]);
+    }
+
     public function testGetRequestTypes()
     {
         $query = $this->sut->getRequestTypes($this->serviceDeskId, null, null, ['field']);
