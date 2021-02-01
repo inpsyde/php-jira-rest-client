@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * The interface for service desk request operations, matching the Request group in API.
- * @see https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request
+ * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request
  */
 class RequestService extends JiraClient implements RequestServiceInterface
 {

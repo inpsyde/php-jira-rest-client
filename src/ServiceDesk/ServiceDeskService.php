@@ -23,7 +23,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * The implementation of service desk operations, matching the Servicedesk group in API.
- * @see https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk
+ * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk
  */
 class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterface
 {

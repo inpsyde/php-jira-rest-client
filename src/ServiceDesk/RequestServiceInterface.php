@@ -6,7 +6,7 @@ use JiraRestApi\ServiceDesk\Comment\CommentInterface;
 
 /**
  * The interface for service desk request operations, matching the Request group in API.
- * @see https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request
+ * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request
  */
 interface RequestServiceInterface
 {
@@ -17,6 +17,7 @@ interface RequestServiceInterface
      * @param string $body Content of the comment.
      * @param bool $public Indicates whether the comment is public (true) or private/internal (false).
      * @return CommentInterface
+     * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request/#api-rest-servicedeskapi-request-issueidorkey-comment-post
      */
     public function addComment($issueIdOrKey, string $body, bool $public): CommentInterface;
 }
