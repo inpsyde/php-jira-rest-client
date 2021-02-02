@@ -6,6 +6,8 @@ use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
+use JiraRestApi\ServiceDesk\Attachment\TemporaryFile;
+use JiraRestApi\ServiceDesk\Attachment\TemporaryFileInterface;
 use JiraRestApi\ServiceDesk\RequestType\Field;
 use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
 use JiraRestApi\ServiceDesk\RequestType\FieldValue;
@@ -78,6 +80,22 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         $data = json_encode(['accountIds' => $accountIds]);
 
         $this->exec($this->serviceDeskUri($serviceDeskId) . '/customer', $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function attachTemporaryFile($serviceDeskId, array $filePaths): array
+    {
+        $ret = $this->upload($this->serviceDeskUri($serviceDeskId) . '/attachTemporaryFile', $filePaths);
+
+        $results = array_map(function (string $response) {
+            return json_decode($response);
+        }, $ret);
+
+        return array_merge(...array_map(function ($result): array {
+            return $this->json_mapper->mapArray($result->temporaryAttachments, [], TemporaryFile::class);
+        }, $results));
     }
 
     /**

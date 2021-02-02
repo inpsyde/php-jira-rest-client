@@ -4,6 +4,11 @@ namespace JiraRestApi\ServiceDesk;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
+use JiraRestApi\Pagination\PaginatedQuery;
+use JiraRestApi\ServiceDesk\Attachment\Attachment;
+use JiraRestApi\ServiceDesk\Attachment\AttachmentCreationResult;
+use JiraRestApi\ServiceDesk\Attachment\AttachmentCreationResultInterface;
+use JiraRestApi\ServiceDesk\Attachment\AttachmentInterface;
 use JiraRestApi\ServiceDesk\Comment\Comment;
 use JiraRestApi\ServiceDesk\Comment\CommentInterface;
 use JiraRestApi\ServiceDesk\Date\Date;
@@ -98,6 +103,42 @@ class RequestService extends JiraClient implements RequestServiceInterface
         return $this->json_mapper->map(
             json_decode($ret),
             new Comment()
+        );
+    }
+
+    public function createAttachment(
+        $issueIdOrKey,
+        array $temporaryAttachmentIds,
+        bool $public,
+        string $additionalComment = null
+    ): AttachmentCreationResultInterface
+    {
+        $data = ['temporaryAttachmentIds' => $temporaryAttachmentIds, 'public' => $public];
+        if ($additionalComment) {
+            $data['additionalComment'] = ['body' => $additionalComment];
+        }
+
+        $ret = $this->exec($this->issueUri($issueIdOrKey) . '/attachment', json_encode($data));
+
+        $result = json_decode($ret);
+
+        $this->json_mapper->classMap[UserInterface::class] = User::class;
+        $this->json_mapper->classMap[DateInterface::class] = Date::class;
+
+        /** @var Comment $comment */
+        $comment = $this->json_mapper->map($result->comment, new Comment());
+
+        return new AttachmentCreationResult(
+            $comment,
+            new PaginatedQuery(function (array $paginationQuery) use ($issueIdOrKey, $comment) {
+                $this->allowExperimentalApi();
+
+                $response = $this->exec($this->issueUri($issueIdOrKey) . '/comment/' . $comment->getId() . '/attachment'
+                    . '?' . http_build_query($paginationQuery));
+                return json_decode($response);
+            }, function ($itemData): AttachmentInterface {
+                return $this->json_mapper->map($itemData, new Attachment());
+            }, $result->attachments)
         );
     }
 

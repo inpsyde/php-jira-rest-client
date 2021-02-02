@@ -3,6 +3,7 @@
 namespace JiraRestApi\ServiceDesk;
 
 use JiraRestApi\Pagination\PaginatedQueryInterface;
+use JiraRestApi\ServiceDesk\Attachment\TemporaryFileInterface;
 use JiraRestApi\ServiceDesk\RequestType\RequestTypeInterface;
 use JiraRestApi\ServiceDesk\ServiceDesk\ServiceDeskInterface;
 use JiraRestApi\ServiceDesk\User\UserInterface;
@@ -41,6 +42,15 @@ interface ServiceDeskServiceInterface
      * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk/#api-rest-servicedeskapi-servicedesk-servicedeskid-customer-post
      */
     public function addCustomers($serviceDeskId, array $accountIds): void;
+
+    /** Adds temporary attachments to a service desk and returns their IDs, which then can be used for attaching permanently to a customer request.
+     * @param string|int $serviceDeskId The ID of the service desk to which the file will be attached.
+     * This can alternatively be a project identifier. https://developer.atlassian.com/cloud/jira/service-desk/rest/intro/#request-language
+     * @param array $filePaths Paths of the files to upload.
+     * @return TemporaryFileInterface[]
+     * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-servicedesk/#api-rest-servicedeskapi-servicedesk-servicedeskid-attachtemporaryfile-post
+     */
+    public function attachTemporaryFile($serviceDeskId, array $filePaths): array;
 
     /**
      * Returns a paginated query object allowing to retrieve all customer request types from a service desk.

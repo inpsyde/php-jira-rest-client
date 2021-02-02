@@ -35,18 +35,28 @@ class PaginatedQuery implements PaginatedQueryInterface
     protected $parseItemCallback;
 
     /**
+     * @var PaginatedQueryResultInterface<T>|null
+     */
+    protected $firstPageResult;
+
+    /**
      * @param callable(array):object $queryCallback
      * The function performing the query and returning parsed result,
      * accepts the current pagination query parameters (can be passed to e.g. http_build_query).
      * @param callable(object):T $parseItemCallback
      * The function parsing the items,
      * accepts the item data and returns the object of type T.
+     * @param object|null $initialResponse The response with the results of the first page, if available.
      */
-    public function __construct(callable $queryCallback, callable $parseItemCallback)
+    public function __construct(callable $queryCallback, callable $parseItemCallback, $initialResponse = null)
     {
         $this->start = $this->initialIndex();
         $this->queryCallback = $queryCallback;
         $this->parseItemCallback = $parseItemCallback;
+
+        if ($initialResponse) {
+            $this->firstPageResult = $this->parseResponse($initialResponse);
+        }
     }
 
     public function getStart(): int
@@ -84,15 +94,9 @@ class PaginatedQuery implements PaginatedQueryInterface
      */
     public function execute(): PaginatedQueryResultInterface
     {
-        $response = (array) ($this->queryCallback)($this->getQueryParameters());
+        $response = ($this->queryCallback)($this->getQueryParameters());
 
-        return new PaginatedQueryResult(
-            $response['start'],
-            $response['limit'],
-            $response['size'],
-            $response['isLastPage'],
-            array_map($this->parseItemCallback, $response['values'])
-        );
+        return $this->parseResponse($response);
     }
 
     /**
@@ -101,7 +105,17 @@ class PaginatedQuery implements PaginatedQueryInterface
      */
     public function allPages(): Generator
     {
-        $query = $this->withStart($this->initialIndex());
+        if ($this->firstPageResult) {
+            if ($this->firstPageResult->getSize() !== 0) {
+                yield $this->firstPageResult;
+            }
+
+            if ($this->firstPageResult->isLastPage()) {
+                return;
+            }
+        }
+
+        $query = $this->withStart($this->initialIndex() + ($this->firstPageResult ? $this->firstPageResult->getSize() : 0));
 
         while (true) {
             $result = $query->execute();
@@ -116,7 +130,7 @@ class PaginatedQuery implements PaginatedQueryInterface
                 break;
             }
 
-            $query = $query->withStart($query->getStart() + $this->getLimit());
+            $query = $query->withStart($query->getStart() + $result->getSize());
         }
     }
 
@@ -126,6 +140,22 @@ class PaginatedQuery implements PaginatedQueryInterface
             'start' => $this->start,
             'limit' => $this->limit,
         ];
+    }
+
+    /**
+     * @param array|object $response
+     * @return PaginatedQueryResultInterface<T>
+     */
+    protected function parseResponse($response): PaginatedQueryResultInterface {
+        $response = (array) $response;
+
+        return new PaginatedQueryResult(
+            $response['start'],
+            $response['limit'],
+            $response['size'],
+            $response['isLastPage'],
+            array_map($this->parseItemCallback, $response['values'])
+        );
     }
 
     protected function initialIndex(): int

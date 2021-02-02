@@ -13,6 +13,8 @@ class PaginationTest extends TestCase
     protected $queryFunc;
     protected $parseFunc;
 
+    protected $queriesCount = 0;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -22,6 +24,8 @@ class PaginationTest extends TestCase
         }
 
         $this->queryFunc = function (array $paginationQuery) {
+            $this->queriesCount++;
+
             ['start' => $start, 'limit' => $limit] = $paginationQuery;
             $items = array_slice($this->data, $start, $limit);
             return (object) [
@@ -76,6 +80,8 @@ class PaginationTest extends TestCase
         self::assertTrue($result->isLastPage());
         self::assertEquals([(object) ['id' => 4, 'newprop' => 'foo4']], $result->getItems());
 
+        $this->queriesCount = 0;
+
         $pages = [];
         foreach ($query->withLimit(2)->allPages() as $page) {
             $pages[] = $page;
@@ -85,6 +91,7 @@ class PaginationTest extends TestCase
         self::assertEquals([(object) ['id' => 0, 'newprop' => 'foo0'], (object) ['id' => 1, 'newprop' => 'foo1']], $pages[0]->getItems());
         self::assertEquals([(object) ['id' => 2, 'newprop' => 'foo2'], (object) ['id' => 3, 'newprop' => 'foo3']], $pages[1]->getItems());
         self::assertEquals([(object) ['id' => 4, 'newprop' => 'foo4']], $pages[2]->getItems());
+        self::assertEquals(3, $this->queriesCount);
     }
 
     public function testEmptyResult()
@@ -105,6 +112,47 @@ class PaginationTest extends TestCase
         }
 
         self::assertEmpty($pages);
+    }
+
+    public function testPaginationWhenHasInitialResponse()
+    {
+        $query = new PaginatedQuery($this->queryFunc, $this->parseFunc, (object) [
+            'start' => 0,
+            'limit' => 2,
+            'size' => 2,
+            'isLastPage' => false,
+            'values' => array_slice($this->data, 0, 2),
+        ]);
+
+        $pages = [];
+        foreach ($query->withLimit(2)->allPages() as $page) {
+            $pages[] = $page;
+        }
+
+        self::assertCount(3, $pages);
+        self::assertEquals([(object) ['id' => 0, 'newprop' => 'foo0'], (object) ['id' => 1, 'newprop' => 'foo1']], $pages[0]->getItems());
+        self::assertEquals([(object) ['id' => 2, 'newprop' => 'foo2'], (object) ['id' => 3, 'newprop' => 'foo3']], $pages[1]->getItems());
+        self::assertEquals([(object) ['id' => 4, 'newprop' => 'foo4']], $pages[2]->getItems());
+        self::assertEquals(2, $this->queriesCount);
+    }
+
+    public function testPaginationWhenEmptyInitialResponse()
+    {
+        $query = new PaginatedQuery($this->queryFunc, $this->parseFunc, (object) [
+            'start' => 0,
+            'limit' => 2,
+            'size' => 0,
+            'isLastPage' => true,
+            'values' => [],
+        ]);
+
+        $pages = [];
+        foreach ($query->allPages() as $page) {
+            $pages[] = $page;
+        }
+
+        self::assertEmpty($pages);
+        self::assertEquals(0, $this->queriesCount);
     }
 
     public function testInvalidStart()

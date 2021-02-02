@@ -2,6 +2,7 @@
 
 namespace JiraRestApi\ServiceDesk;
 
+use JiraRestApi\ServiceDesk\Attachment\AttachmentCreationResultInterface;
 use JiraRestApi\ServiceDesk\Comment\CommentInterface;
 use JiraRestApi\ServiceDesk\Request\RequestInterface;
 
@@ -40,4 +41,20 @@ interface RequestServiceInterface
      * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request/#api-rest-servicedeskapi-request-issueidorkey-comment-post
      */
     public function createComment($issueIdOrKey, string $body, bool $public): CommentInterface;
+
+    /**
+     * Creates a comment with attachments.
+     * The current user recorded as the author of the comment.
+     * @param string|int $issueIdOrKey The ID or key of the customer request to which the attachment will be added.
+     * @param string[] $temporaryAttachmentIds List of IDs for the temporary attachments to be added to the customer request.
+     * @param bool $public Indicates whether the attachments are to be public (true) or private/internal (false).
+     * @param string|null $additionalComment Content of the comment.
+     * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request/#api-rest-servicedeskapi-request-issueidorkey-attachment-post
+     */
+    public function createAttachment(
+        $issueIdOrKey,
+        array $temporaryAttachmentIds,
+        bool $public,
+        string $additionalComment = null
+    ): AttachmentCreationResultInterface;
 }
