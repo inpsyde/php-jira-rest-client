@@ -2,6 +2,8 @@
 
 namespace JiraRestApi\Pagination;
 
+use Generator;
+
 /**
  * Generic paginated query.
  * Pass the functions performing the actual query and item parsing to the constructor.
@@ -84,6 +86,31 @@ class PaginatedQuery implements PaginatedQueryInterface
             $response['isLastPage'],
             array_map($this->parseItemCallback, $response['values'])
         );
+    }
+
+    /**
+     * @inheritDoc
+     * @return Generator<PaginatedQueryResultInterface<T>>
+     */
+    public function allPages(): Generator
+    {
+        $query = $this->withStart(0);
+
+        while (true) {
+            $result = $query->execute();
+
+            if ($result->getSize() === 0) {
+                break;
+            }
+
+            yield $result;
+
+            if ($result->isLastPage()) {
+                break;
+            }
+
+            $query = $query->withStart($query->getStart() + $this->getLimit());
+        }
     }
 
     protected function getQueryParameters(): array

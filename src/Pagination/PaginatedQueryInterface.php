@@ -8,8 +8,9 @@ use Exception;
  * The interface for paginated query.
  * Use withStart() and withLimit() to set the query position, and execute() to query the result.
  * @template T
+ * @extends IterablePaginationInterface<T>
  */
-interface PaginatedQueryInterface
+interface PaginatedQueryInterface extends IterablePaginationInterface
 {
     /**
      * Returns the current starting item index that will be queried.
