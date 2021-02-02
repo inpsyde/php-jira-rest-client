@@ -3,6 +3,7 @@
 namespace JiraRestApi\Pagination;
 
 use Exception;
+use RangeException;
 
 /**
  * The interface for paginated query.
@@ -22,6 +23,7 @@ interface PaginatedQueryInterface extends IterablePaginationInterface
      * Returns a new instance which has the start set to what is specified.
      * @param int $start The starting item index that will be queried.
      * @return static A new instance which has the value set to what is specified.
+     * @throws RangeException If invalid $start.
      */
     public function withStart(int $start);
 

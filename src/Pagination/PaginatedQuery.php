@@ -3,6 +3,7 @@
 namespace JiraRestApi\Pagination;
 
 use Generator;
+use RangeException;
 
 /**
  * Generic paginated query.
@@ -43,6 +44,7 @@ class PaginatedQuery implements PaginatedQueryInterface
      */
     public function __construct(callable $queryCallback, callable $parseItemCallback)
     {
+        $this->start = $this->initialIndex();
         $this->queryCallback = $queryCallback;
         $this->parseItemCallback = $parseItemCallback;
     }
@@ -54,6 +56,11 @@ class PaginatedQuery implements PaginatedQueryInterface
 
     public function withStart(int $start)
     {
+        if ($start < $this->initialIndex()) {
+            throw new RangeException(sprintf('Incorrect start index %1$d, must be not less than %2$d.',
+                $start, $this->initialIndex()));
+        }
+
         $query = clone $this;
         $query->start = $start;
         return $query;
@@ -94,7 +101,7 @@ class PaginatedQuery implements PaginatedQueryInterface
      */
     public function allPages(): Generator
     {
-        $query = $this->withStart(0);
+        $query = $this->withStart($this->initialIndex());
 
         while (true) {
             $result = $query->execute();
@@ -119,5 +126,10 @@ class PaginatedQuery implements PaginatedQueryInterface
             'start' => $this->start,
             'limit' => $this->limit,
         ];
+    }
+
+    protected function initialIndex(): int
+    {
+        return 0;
     }
 }

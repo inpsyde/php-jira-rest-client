@@ -4,6 +4,7 @@ namespace JiraRestApi\Test\Pagination;
 
 use JiraRestApi\Pagination\PaginatedQuery;
 use PHPUnit\Framework\TestCase;
+use RangeException;
 
 class PaginationTest extends TestCase
 {
@@ -104,5 +105,14 @@ class PaginationTest extends TestCase
         }
 
         self::assertEmpty($pages);
+    }
+
+    public function testInvalidStart()
+    {
+        $query = new PaginatedQuery($this->queryFunc, $this->parseFunc);
+
+        $this->expectException(RangeException::class);
+
+        $query->withStart(-1);
     }
 }
