@@ -39,5 +39,5 @@ interface RequestServiceInterface
      * @return CommentInterface
      * @link https://developer.atlassian.com/cloud/jira/service-desk/rest/api-group-request/#api-rest-servicedeskapi-request-issueidorkey-comment-post
      */
-    public function addComment($issueIdOrKey, string $body, bool $public): CommentInterface;
+    public function createComment($issueIdOrKey, string $body, bool $public): CommentInterface;
 }

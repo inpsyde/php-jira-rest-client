@@ -86,7 +86,7 @@ class RequestService extends JiraClient implements RequestServiceInterface
     /**
      * @inheritDoc
      */
-    public function addComment($issueIdOrKey, string $body, bool $public): CommentInterface
+    public function createComment($issueIdOrKey, string $body, bool $public): CommentInterface
     {
         $data = json_encode(['body' => $body, 'public' => $public]);
 

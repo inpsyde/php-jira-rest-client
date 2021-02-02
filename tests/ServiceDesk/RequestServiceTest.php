@@ -73,9 +73,9 @@ class RequestServiceTest extends TestCase
     /**
      * @depends testCreateRequest
      */
-    public function testAddComment(RequestInterface $request)
+    public function testCreateComment(RequestInterface $request)
     {
-        $comment = $this->sut->addComment($request->getIssueId(), 'test comment', true);
+        $comment = $this->sut->createComment($request->getIssueId(), 'test comment', true);
 
         self::assertEquals('test comment', $comment->getBody());
         self::assertNotEmpty($comment->getId());
