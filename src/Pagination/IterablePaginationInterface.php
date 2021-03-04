@@ -13,8 +13,9 @@ interface IterablePaginationInterface
 {
     /**
      * Returns all pages.
-     * @return Generator<PaginatedQueryResultInterface<T>>
+     * Usually it should be implemented via generators (yield), that is not loading all hundreds of pages at once.
+     * @return iterable<PaginatedQueryResultInterface<T>>
      * @throws Exception
      */
-    public function allPages(): Generator;
+    public function allPages(): iterable;
 }

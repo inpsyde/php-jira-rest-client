@@ -101,9 +101,9 @@ class PaginatedQuery implements PaginatedQueryInterface
 
     /**
      * @inheritDoc
-     * @return Generator<PaginatedQueryResultInterface<T>>
+     * @return iterable<PaginatedQueryResultInterface<T>>
      */
-    public function allPages(): Generator
+    public function allPages(): iterable
     {
         if ($this->firstPageResult) {
             if ($this->firstPageResult->getSize() !== 0) {
