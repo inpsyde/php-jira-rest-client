@@ -4,6 +4,7 @@ namespace JiraRestApi\ServiceDesk;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
+use JiraRestApi\JsonOperationsTrait;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
 use JiraRestApi\ServiceDesk\Attachment\TemporaryFile;
@@ -30,8 +31,15 @@ use Psr\Log\LoggerInterface;
 class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterface
 {
     use ServiceDeskTrait;
+    use JsonOperationsTrait;
 
     protected $uri = '/servicedesk';
+
+    protected $classMap = [
+        RequestCreationMetaInterface::class => RequestCreationMeta::class,
+        FieldInterface::class => Field::class,
+        FieldValueInterface::class => FieldValue::class,
+    ];
 
     public function __construct(ConfigurationInterface $configuration = null, LoggerInterface $logger = null, $path = './')
     {
@@ -47,10 +55,10 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
     {
         return new PaginatedQuery(function (array $paginationQuery) {
             $response = $this->exec($this->uri . '?' . http_build_query($paginationQuery));
-            return json_decode($response, false);
+            return $this->decodeJson($response);
         }, function ($itemData): ServiceDeskInterface {
 
-            return $this->json_mapper->map($itemData, new ServiceDesk());
+            return $this->prepareJsonMapper($this->classMap)->map($itemData, new ServiceDesk());
         });
     }
 
@@ -66,9 +74,9 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
 
         return new PaginatedQuery(function (array $paginationQuery) use ($url, $params) {
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
-            return json_decode($response, false);
+            return $this->decodeJson($response);
         }, function ($itemData): UserInterface {
-            return $this->json_mapper->map($itemData, new User());
+            return $this->prepareJsonMapper($this->classMap)->map($itemData, new User());
         });
     }
 
@@ -77,7 +85,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
      */
     public function addCustomers($serviceDeskId, array $accountIds): void
     {
-        $data = json_encode(['accountIds' => $accountIds]);
+        $data = $this->encodeJson(['accountIds' => $accountIds]);
 
         $this->exec($this->serviceDeskUri($serviceDeskId) . '/customer', $data);
     }
@@ -90,11 +98,11 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         $ret = $this->upload($this->serviceDeskUri($serviceDeskId) . '/attachTemporaryFile', $filePaths);
 
         $results = array_map(function (string $response) {
-            return json_decode($response);
+            return $this->decodeJson($response);
         }, $ret);
 
         return array_merge(...array_map(function ($result): array {
-            return $this->json_mapper->mapArray($result->temporaryAttachments, [], TemporaryFile::class);
+            return $this->prepareJsonMapper($this->classMap)->mapArray($result->temporaryAttachments, [], TemporaryFile::class);
         }, $results));
     }
 
@@ -117,13 +125,10 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
 
         return new PaginatedQuery(function (array $paginationQuery) use ($url, $params) {
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
-            return json_decode($response, false);
+            return $this->decodeJson($response);
         }, function ($itemData): RequestTypeInterface {
-            $this->json_mapper->classMap[RequestCreationMetaInterface::class] = RequestCreationMeta::class;
-            $this->json_mapper->classMap[FieldInterface::class] = Field::class;
-            $this->json_mapper->classMap[FieldValueInterface::class] = FieldValue::class;
 
-            return $this->json_mapper->map($itemData, new RequestType());
+            return $this->prepareJsonMapper($this->classMap)->map($itemData, new RequestType());
         });
     }
 

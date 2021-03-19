@@ -4,6 +4,7 @@ namespace JiraRestApi\ServiceDesk;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
+use JiraRestApi\JsonOperationsTrait;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
 use JiraRestApi\ServiceDesk\RequestType\Field;
@@ -28,6 +29,7 @@ use Psr\Log\LoggerInterface;
 class CustomerService extends JiraClient implements CustomerServiceInterface
 {
     use ServiceDeskTrait;
+    use JsonOperationsTrait;
 
     protected $uri = '/customer';
 
@@ -43,12 +45,12 @@ class CustomerService extends JiraClient implements CustomerServiceInterface
      */
     public function createCustomer(string $email, string $displayName): UserInterface
     {
-        $data = json_encode(['email' => $email, 'displayName' => $displayName]);
+        $data = $this->encodeJson(['email' => $email, 'displayName' => $displayName]);
 
         $ret = $this->exec($this->uri, $data);
 
-        return $this->json_mapper->map(
-            json_decode($ret),
+        return $this->prepareJsonMapper()->map(
+            $this->decodeJson($ret),
             new User()
         );
     }

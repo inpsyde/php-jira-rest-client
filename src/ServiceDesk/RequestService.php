@@ -4,6 +4,7 @@ namespace JiraRestApi\ServiceDesk;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\JiraClient;
+use JiraRestApi\JsonOperationsTrait;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\ServiceDesk\Attachment\Attachment;
 use JiraRestApi\ServiceDesk\Attachment\AttachmentCreationResult;
@@ -41,8 +42,21 @@ use Psr\Log\LoggerInterface;
 class RequestService extends JiraClient implements RequestServiceInterface
 {
     use ServiceDeskTrait;
+    use JsonOperationsTrait;
 
     protected $uri = '/request';
+
+    protected $classMap = [
+        UserInterface::class => User::class,
+        DateInterface::class => Date::class,
+        FieldValueInterface::class => FieldValue::class,
+        StatusInterface::class => Status::class,
+        ServiceDeskInterface::class => ServiceDesk::class,
+        RequestTypeInterface::class => RequestType::class,
+        RequestCreationMetaInterface::class => RequestCreationMeta::class,
+        FieldInterface::class => Field::class,
+        RequestTypeFieldValueInterface::class => RequestTypeFieldValue::class,
+    ];
 
     public function __construct(ConfigurationInterface $configuration = null, LoggerInterface $logger = null, $path = './')
     {
@@ -62,7 +76,7 @@ class RequestService extends JiraClient implements RequestServiceInterface
         ?string $raiseOnBehalfOf = null
     ): RequestInterface
     {
-        $data = json_encode(array_filter([
+        $data = $this->encodeJson(array_filter([
             'serviceDeskId' => (string) $serviceDeskId,
             'requestTypeId' => (string) $requestTypeId,
             'requestFieldValues' => $fieldValues,
@@ -72,18 +86,8 @@ class RequestService extends JiraClient implements RequestServiceInterface
 
         $ret = $this->exec($this->uri, $data);
 
-        $this->json_mapper->classMap[FieldValueInterface::class] = FieldValue::class;
-        $this->json_mapper->classMap[StatusInterface::class] = Status::class;
-        $this->json_mapper->classMap[UserInterface::class] = User::class;
-        $this->json_mapper->classMap[DateInterface::class] = Date::class;
-        $this->json_mapper->classMap[ServiceDeskInterface::class] = ServiceDesk::class;
-        $this->json_mapper->classMap[RequestTypeInterface::class] = RequestType::class;
-        $this->json_mapper->classMap[RequestCreationMetaInterface::class] = RequestCreationMeta::class;
-        $this->json_mapper->classMap[FieldInterface::class] = Field::class;
-        $this->json_mapper->classMap[RequestTypeFieldValueInterface::class] = RequestTypeFieldValue::class;
-
-        return $this->json_mapper->map(
-            json_decode($ret),
+        return $this->prepareJsonMapper($this->classMap)->map(
+            $this->decodeJson($ret),
             new Request()
         );
     }
@@ -93,15 +97,12 @@ class RequestService extends JiraClient implements RequestServiceInterface
      */
     public function createComment($issueIdOrKey, string $body, bool $public): CommentInterface
     {
-        $data = json_encode(['body' => $body, 'public' => $public]);
+        $data = $this->encodeJson(['body' => $body, 'public' => $public]);
 
         $ret = $this->exec($this->issueUri($issueIdOrKey) . '/comment', $data);
 
-        $this->json_mapper->classMap[UserInterface::class] = User::class;
-        $this->json_mapper->classMap[DateInterface::class] = Date::class;
-
-        return $this->json_mapper->map(
-            json_decode($ret),
+        return $this->prepareJsonMapper($this->classMap)->map(
+            $this->decodeJson($ret),
             new Comment()
         );
     }
@@ -118,15 +119,12 @@ class RequestService extends JiraClient implements RequestServiceInterface
             $data['additionalComment'] = ['body' => $additionalComment];
         }
 
-        $ret = $this->exec($this->issueUri($issueIdOrKey) . '/attachment', json_encode($data));
+        $ret = $this->exec($this->issueUri($issueIdOrKey) . '/attachment', $this->encodeJson($data));
 
-        $result = json_decode($ret);
-
-        $this->json_mapper->classMap[UserInterface::class] = User::class;
-        $this->json_mapper->classMap[DateInterface::class] = Date::class;
+        $result = $this->decodeJson($ret);
 
         /** @var Comment $comment */
-        $comment = $this->json_mapper->map($result->comment, new Comment());
+        $comment = $this->prepareJsonMapper($this->classMap)->map($result->comment, new Comment());
 
         return new AttachmentCreationResult(
             $comment,
@@ -135,9 +133,9 @@ class RequestService extends JiraClient implements RequestServiceInterface
 
                 $response = $this->exec($this->issueUri($issueIdOrKey) . '/comment/' . $comment->getId() . '/attachment'
                     . '?' . http_build_query($paginationQuery));
-                return json_decode($response);
+                return $this->decodeJson($response);
             }, function ($itemData): AttachmentInterface {
-                return $this->json_mapper->map($itemData, new Attachment());
+                return $this->prepareJsonMapper($this->classMap)->map($itemData, new Attachment());
             }, $result->attachments)
         );
     }
