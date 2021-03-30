@@ -4,6 +4,10 @@ namespace JiraRestApi\ServiceDesk\User;
 
 /**
  * User/customer info. UserDTO from the JIRA Service Desk API.
+ *
+ * The setters are used only for JSON mapping (for consistency). We could the fields instead (even non-public)
+ * but it may cause some confusion and accidental errors, because then we must use full namespace in PHPDoc.
+ * https://github.com/inpsyde/php-jira-rest-client/pull/1#discussion_r597775525
  */
 class User implements UserInterface
 {
