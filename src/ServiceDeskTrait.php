@@ -4,6 +4,8 @@ namespace JiraRestApi;
 
 trait ServiceDeskTrait
 {
+    abstract protected function addHeader(string $key, string $value);
+
     protected function setupAPIUri($version = '')
     {
         $uri = '/rest/servicedeskapi';

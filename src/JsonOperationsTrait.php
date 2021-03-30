@@ -8,6 +8,15 @@ use JsonMapper;
 trait JsonOperationsTrait
 {
     /**
+     * Returns options for json_encode/json_decode
+     *
+     * @return int
+     */
+    abstract protected function getJsonOptions();
+
+    abstract protected function getJsonMapper(): JsonMapper;
+
+    /**
      * @param mixed $data
      * @return string
      * @throws Exception When cannot encode the given data (JsonException if PHP 7.3+).
@@ -37,8 +46,7 @@ trait JsonOperationsTrait
 
     protected function prepareJsonMapper(array $classMap = []): JsonMapper
     {
-        $mapper = $this->json_mapper;
-        assert($mapper instanceof JsonMapper);
+        $mapper = $this->getJsonMapper();
 
         $mapper->classMap = array_merge($mapper->classMap, $classMap);
 

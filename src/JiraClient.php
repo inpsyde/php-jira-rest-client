@@ -4,6 +4,7 @@ namespace JiraRestApi;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\Configuration\DotEnvConfiguration;
+use JsonMapper;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger as Logger;
 use Psr\Log\LoggerInterface;
@@ -21,7 +22,7 @@ class JiraClient
     /**
      * Json Mapper.
      *
-     * @var \JsonMapper
+     * @var JsonMapper
      */
     protected $json_mapper;
 
@@ -94,7 +95,7 @@ class JiraClient
             $this->configuration = $configuration;
         }
 
-        $this->json_mapper = new \JsonMapper();
+        $this->json_mapper = new JsonMapper();
 
         // Fix "\JiraRestApi\JsonMapperHelper::class" syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$'
         $this->json_mapper->undefinedPropertyHandler = [new \JiraRestApi\JsonMapperHelper(), 'setUndefinedProperty'];
@@ -739,5 +740,10 @@ class JiraClient
     public function getJsonOptions()
     {
         return $this->jsonOptions;
+    }
+
+    protected function getJsonMapper(): JsonMapper
+    {
+        return $this->json_mapper;
     }
 }
