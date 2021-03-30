@@ -8,7 +8,6 @@ use JiraRestApi\JsonOperationsTrait;
 use JiraRestApi\Pagination\PaginatedQuery;
 use JiraRestApi\Pagination\PaginatedQueryInterface;
 use JiraRestApi\ServiceDesk\Attachment\TemporaryFile;
-use JiraRestApi\ServiceDesk\Attachment\TemporaryFileInterface;
 use JiraRestApi\ServiceDesk\RequestType\Field;
 use JiraRestApi\ServiceDesk\RequestType\FieldInterface;
 use JiraRestApi\ServiceDesk\RequestType\FieldValue;
@@ -57,7 +56,6 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($this->uri . '?' . http_build_query($paginationQuery));
             return $this->decodeJson($response);
         }, function ($itemData): ServiceDeskInterface {
-
             return $this->prepareJsonMapper($this->classMap)->map($itemData, new ServiceDesk());
         });
     }
@@ -127,7 +125,6 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
             return $this->decodeJson($response);
         }, function ($itemData): RequestTypeInterface {
-
             return $this->prepareJsonMapper($this->classMap)->map($itemData, new RequestType());
         });
     }
