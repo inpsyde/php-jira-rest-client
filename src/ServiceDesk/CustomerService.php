@@ -37,9 +37,17 @@ class CustomerService extends JiraClient implements CustomerServiceInterface
 
         $ret = $this->exec($this->uri, $data);
 
-        return $this->prepareJsonMapper()->map(
-            $this->decodeJson($ret),
-            new User()
-        );
+        return $this->deserialize($this->decodeJson($ret), User::class);
+    }
+
+    /**
+     * @param object $objData
+     * @param string $class
+     * @return mixed|object
+     */
+    protected function deserialize($objData, string $class)
+    {
+        $mapper = $this->prepareJsonMapper();
+        return $mapper->map($objData, new $class());
     }
 }

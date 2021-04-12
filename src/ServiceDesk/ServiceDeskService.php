@@ -56,7 +56,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($this->uri . '?' . http_build_query($paginationQuery));
             return $this->decodeJson($response);
         }, function ($itemData): ServiceDeskInterface {
-            return $this->prepareJsonMapper($this->classMap)->map($itemData, new ServiceDesk());
+            return $this->deserialize($itemData, ServiceDesk::class);
         });
     }
 
@@ -74,7 +74,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
             return $this->decodeJson($response);
         }, function ($itemData): UserInterface {
-            return $this->prepareJsonMapper($this->classMap)->map($itemData, new User());
+            return $this->deserialize($itemData, User::class);
         });
     }
 
@@ -100,7 +100,7 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
         }, $ret);
 
         return array_merge(...array_map(function ($result): array {
-            return $this->prepareJsonMapper($this->classMap)->mapArray($result->temporaryAttachments, [], TemporaryFile::class);
+            return $this->deserializeArray($result->temporaryAttachments, TemporaryFile::class);
         }, $results));
     }
 
@@ -125,11 +125,33 @@ class ServiceDeskService extends JiraClient implements ServiceDeskServiceInterfa
             $response = $this->exec($url . '?' . http_build_query(array_merge($params, $paginationQuery)));
             return $this->decodeJson($response);
         }, function ($itemData): RequestTypeInterface {
-            return $this->prepareJsonMapper($this->classMap)->map($itemData, new RequestType());
+            return $this->deserialize($itemData, RequestType::class);
         });
     }
 
     protected function serviceDeskUri($serviceDeskId): string {
         return $this->uri . "/$serviceDeskId";
+    }
+
+    /**
+     * @param object $objData
+     * @param string $class
+     * @return mixed|object
+     */
+    protected function deserialize($objData, string $class)
+    {
+        $mapper = $this->prepareJsonMapper($this->classMap);
+        return $mapper->map($objData, new $class());
+    }
+
+    /**
+     * @param array $objData
+     * @param string $class
+     * @return array
+     */
+    protected function deserializeArray($objData, string $class)
+    {
+        $mapper = $this->prepareJsonMapper($this->classMap);
+        return $mapper->mapArray($objData, [], $class);
     }
 }

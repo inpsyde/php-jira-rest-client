@@ -86,10 +86,7 @@ class RequestService extends JiraClient implements RequestServiceInterface
 
         $ret = $this->exec($this->uri, $data);
 
-        return $this->prepareJsonMapper($this->classMap)->map(
-            $this->decodeJson($ret),
-            new Request()
-        );
+        return $this->deserialize($this->decodeJson($ret), Request::class);
     }
 
     /**
@@ -101,10 +98,7 @@ class RequestService extends JiraClient implements RequestServiceInterface
 
         $ret = $this->exec($this->issueUri($issueIdOrKey) . '/comment', $data);
 
-        return $this->prepareJsonMapper($this->classMap)->map(
-            $this->decodeJson($ret),
-            new Comment()
-        );
+        return $this->deserialize($this->decodeJson($ret), Comment::class);
     }
 
     public function createAttachment(
@@ -124,7 +118,7 @@ class RequestService extends JiraClient implements RequestServiceInterface
         $result = $this->decodeJson($ret);
 
         /** @var Comment $comment */
-        $comment = $this->prepareJsonMapper($this->classMap)->map($result->comment, new Comment());
+        $comment = $this->deserialize($result->comment, Comment::class);
 
         return new AttachmentCreationResult(
             $comment,
@@ -135,12 +129,23 @@ class RequestService extends JiraClient implements RequestServiceInterface
                     . '?' . http_build_query($paginationQuery));
                 return $this->decodeJson($response);
             }, function ($itemData): AttachmentInterface {
-                return $this->prepareJsonMapper($this->classMap)->map($itemData, new Attachment());
+                return $this->deserialize($itemData, Attachment::class);
             }, $result->attachments)
         );
     }
 
     protected function issueUri(string $id): string {
         return $this->uri . "/$id";
+    }
+
+    /**
+     * @param object $objData
+     * @param string $class
+     * @return mixed|object
+     */
+    protected function deserialize($objData, string $class)
+    {
+        $mapper = $this->prepareJsonMapper($this->classMap);
+        return $mapper->map($objData, new $class());
     }
 }
