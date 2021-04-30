@@ -40,7 +40,9 @@ class DotEnvConfiguration extends AbstractConfiguration
         $this->proxyUser = $this->env('PROXY_USER');
         $this->proxyPassword = $this->env('PROXY_PASSWORD');
 
-        $this->useV3RestApi = $this->env('JIRA_REST_API_V3');
+        $this->useV3RestApi = $this->env('JIRA_REST_API_V3', false);
+
+        $this->timeout = $this->env('JIRA_TIMEOUT', 30);
     }
 
     /**
@@ -53,7 +55,14 @@ class DotEnvConfiguration extends AbstractConfiguration
      */
     private function env($key, $default = null)
     {
-        $value = $_ENV[$key] ?? null;
+
+        // Fallback for frameworks like Laravel as the $_ENV method might not work in all
+        // circumstances. ie when running scheduled jobs.
+        if (function_exists('env') && is_callable('env')) {
+            $value = call_user_func('env', $key) ?? null;
+        } else {
+            $value = $_ENV[$key] ?? null;
+        }
 
         if ($value === false) {
             return $default;
@@ -137,7 +146,7 @@ class DotEnvConfiguration extends AbstractConfiguration
 
         // support for dotenv 1.x and 2.x. see also https://github.com/lesstif/php-jira-rest-client/issues/102
         if (class_exists('\Dotenv\Dotenv')) {
-            if (method_exists('\Dotenv\Dotenv', 'createImmutable')) {    // v4
+            if (method_exists('\Dotenv\Dotenv', 'createImmutable')) {    // v4 or above
                 $dotenv = \Dotenv\Dotenv::createImmutable($path);
 
                 $dotenv->safeLoad();
@@ -147,15 +156,7 @@ class DotEnvConfiguration extends AbstractConfiguration
 
                 $dotenv->safeLoad();
                 $dotenv->required($requireParam);
-            } else {    // v2
-                $dotenv = new \Dotenv\Dotenv($path); // @phpstan-ignore-line
-
-                $dotenv->load();
-                $dotenv->required($requireParam);
             }
-        } elseif (class_exists('\Dotenv')) {    // DotEnv v1
-            \Dotenv::load($path);
-            \Dotenv::required($requireParam);
         } else {
             throw new JiraException('can not load PHP dotenv class.!');
         }
