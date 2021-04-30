@@ -4,10 +4,17 @@ namespace JiraRestApi;
 
 trait ServiceDeskTrait
 {
-    private function setupAPIUri($version = '')
+    abstract protected function addHeader(string $key, string $value);
+
+    protected function setupAPIUri($version = '')
     {
         $uri = '/rest/servicedeskapi';
         $uri .= ($version != '') ? '/'.$version : '';
         $this->setAPIUri($uri);
+    }
+
+    protected function allowExperimentalApi()
+    {
+        $this->addHeader('X-ExperimentalApi', 'opt-in');
     }
 }

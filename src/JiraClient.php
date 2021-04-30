@@ -4,6 +4,7 @@ namespace JiraRestApi;
 
 use JiraRestApi\Configuration\ConfigurationInterface;
 use JiraRestApi\Configuration\DotEnvConfiguration;
+use JsonMapper;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger as Logger;
 use Psr\Log\LoggerInterface;
@@ -21,7 +22,7 @@ class JiraClient
     /**
      * Json Mapper.
      *
-     * @var \JsonMapper
+     * @var JsonMapper
      */
     protected $json_mapper;
 
@@ -68,6 +69,11 @@ class JiraClient
     protected $jsonOptions;
 
     /**
+     * @var string[]
+     */
+    protected $additionalHeaders = [];
+
+    /**
      * Constructor.
      *
      * @param ConfigurationInterface $configuration
@@ -89,7 +95,7 @@ class JiraClient
             $this->configuration = $configuration;
         }
 
-        $this->json_mapper = new \JsonMapper();
+        $this->json_mapper = new JsonMapper();
 
         // Fix "\JiraRestApi\JsonMapperHelper::class" syntax error, unexpected 'class' (T_CLASS), expecting identifier (T_STRING) or variable (T_VARIABLE) or '{' or '$'
         $this->json_mapper->undefinedPropertyHandler = [new \JiraRestApi\JsonMapperHelper(), 'setUndefinedProperty'];
@@ -263,7 +269,11 @@ class JiraClient
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            ['Accept: */*', 'Content-Type: application/json', 'X-Atlassian-Token: no-check']
+            array_merge([
+                'Accept: */*',
+                'Content-Type: application/json',
+                'X-Atlassian-Token: no-check'
+            ], $this->additionalHeaders)
         );
 
         curl_setopt($ch, CURLOPT_VERBOSE, $this->getConfiguration()->isCurlOptVerbose());
@@ -455,6 +465,14 @@ class JiraClient
         if ($result_code != 200) {
             // @TODO $body might have not been defined
             throw new JiraException('CURL Error: = '.$body, $result_code);
+        }
+    }
+
+    protected function addHeader(string $key, string $value)
+    {
+        $line = "$key: $value";
+        if (!in_array($line, $this->additionalHeaders, true)) {
+            $this->additionalHeaders[] = $line;
         }
     }
 
@@ -722,5 +740,10 @@ class JiraClient
     public function getJsonOptions()
     {
         return $this->jsonOptions;
+    }
+
+    protected function getJsonMapper(): JsonMapper
+    {
+        return $this->json_mapper;
     }
 }

@@ -16,6 +16,7 @@ before_script:
 script:
   - ./vendor/bin/phpunit --verbose tests/SerializeTest
   - ./vendor/bin/phpunit --verbose tests/MapperTest
+  - ./vendor/bin/phpunit --verbose tests/Pagination
 
 jobs:
   include:

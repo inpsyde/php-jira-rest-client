@@ -7,6 +7,9 @@ use JiraRestApi\JiraException;
 use JiraRestApi\ServiceDeskTrait;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated Use ServiceDesk\RequestService
+ */
 class RequestService extends \JiraRestApi\JiraClient
 {
     use ServiceDeskTrait;
